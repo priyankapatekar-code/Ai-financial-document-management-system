@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financial Documents</title>
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#fff; --text:#1d2433; --muted:#6b7488; --line:#e3e7ef;
+    --brand:#2557d6; --brand-d:#1b44ab; --ok:#16794c; --err:#b3261e;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0f1420; --card:#171d2c; --text:#e8ecf5; --muted:#98a2b8; --line:#2a3247;
+           --brand:#5b8cff; --brand-d:#7aa2ff; --ok:#4cc38a; --err:#ff8a80; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:var(--card);border-bottom:1px solid var(--line);padding:14px 16px;
+         display:flex;align-items:center;justify-content:space-between;gap:12px}
+  header h1{font-size:18px;margin:0}
+  main{max-width:860px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+  .card h2{margin:0 0 12px;font-size:17px}
+  label{display:block;font-size:14px;color:var(--muted);margin:10px 0 4px}
+  input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+               background:var(--bg);color:var(--text);font:inherit}
+  input:focus,select:focus,button:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+  button{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:inherit;
+         font-weight:600;cursor:pointer}
+  button:hover{background:var(--brand-d)}
+  button:disabled{opacity:.6;cursor:wait}
+  button.ghost{background:transparent;color:var(--brand);border:1px solid var(--line)}
+  button.danger{background:transparent;color:var(--err);border:1px solid var(--line);padding:6px 10px;font-size:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row>*{flex:1 1 200px}
+  .tabs{display:flex;gap:8px;margin-bottom:12px}
+  .tabs button{flex:1}
+  .tabs button:not(.active){background:transparent;color:var(--text);border:1px solid var(--line)}
+  .msg{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:14px;display:none}
+  .msg.ok{display:block;background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+  .msg.err{display:block;background:color-mix(in srgb,var(--err) 15%,transparent);color:var(--err)}
+  .answer{white-space:pre-wrap;margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;
+          border:1px solid var(--line);display:none}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600}
+  .table-wrap{overflow-x:auto}
+  .hidden{display:none}
+  .muted{color:var(--muted);font-size:14px}
+  .who{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📄 Financial Documents</h1>
+  <div class="who hidden" id="who"><span id="whoText"></span><button class="ghost" id="logout">Log out</button></div>
+</header>
+
+<main>
+  <!-- Login / Register -->
+  <section class="card" id="authCard">
+    <div class="tabs">
+      <button id="tabLogin" class="active">Log in</button>
+      <button id="tabRegister">Create account</button>
+    </div>
+    <form id="authForm">
+      <div id="nameWrap" class="hidden">
+        <label for="username">Name</label>
+        <input id="username" autocomplete="name">
+      </div>
+      <label for="email">Email</label>
+      <input id="email" type="email" required autocomplete="email">
+      <label for="password">Password</label>
+      <input id="password" type="password" required autocomplete="current-password">
+      <div id="roleWrap" class="hidden">
+        <label for="role">I am a…</label>
+        <select id="role">
+          <option value="client">Client</option>
+          <option value="financial_analyst">Financial analyst</option>
+          <option value="auditor">Auditor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div style="margin-top:16px"><button type="submit" id="authBtn">Log in</button></div>
+      <div class="msg" id="authMsg"></div>
+    </form>
+  </section>
+
+  <!-- App -->
+  <div id="appArea" class="hidden">
+    <section class="card" id="askCard">
+      <h2>Ask a question</h2>
+      <p class="muted">Ask about your uploaded documents and get an AI answer.</p>
+      <form id="askForm" class="row">
+        <input id="question" placeholder="e.g. What was the total revenue?" required style="flex:3 1 260px">
+        <button type="submit" id="askBtn" style="flex:0 0 auto">Ask</button>
+      </form>
+      <div class="answer" id="answer"></div>
+      <div class="msg" id="askMsg"></div>
+    </section>
+
+    <section class="card hidden" id="uploadCard">
+      <h2>Upload a PDF</h2>
+      <form id="uploadForm">
+        <div class="row">
+          <div><label for="title">Title</label><input id="title" required></div>
+          <div><label for="company">Company</label><input id="company" required></div>
+          <div><label for="dtype">Type</label>
+            <select id="dtype">
+              <option>Annual report</option><option>Balance sheet</option><option>Invoice</option>
+              <option>Audit report</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <label for="file">PDF file</label>
+        <input id="file" type="file" accept="application/pdf,.pdf" required>
+        <div style="margin-top:16px"><button type="submit" id="uploadBtn">Upload</button></div>
+        <div class="msg" id="uploadMsg"></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Documents</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Company</th><th>Type</th><th>Date</th><th></th></tr></thead>
+          <tbody id="docs"></tbody>
+        </table>
+      </div>
+      <p class="muted" id="noDocs">No documents yet.</p>
+      <div class="msg" id="docsMsg"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let token = null, role = null, email = null;
+try { token = localStorage.getItem('token'); } catch(e){}
+
+function show(el, text, kind){ el.textContent = text; el.className = 'msg ' + kind; }
+function clear(el){ el.className = 'msg'; el.textContent = ''; }
+
+function parseToken(t){
+  try { return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); }
+  catch(e){ return null; }
+}
+
+async function api(path, opts = {}){
+  opts.headers = Object.assign({}, opts.headers, token ? {Authorization: 'Bearer ' + token} : {});
+  const res = await fetch(path, opts);
+  let data = null;
+  try { data = await res.json(); } catch(e){}
+  if (res.status === 401 && token && path !== '/auth/login') { logout(); throw new Error('Session expired, please log in again.'); }
+  if (!res.ok) {
+    let d = data && data.detail;
+    if (Array.isArray(d)) d = d.map(x => x.msg).join(', ');
+    throw new Error(d || 'Something went wrong (' + res.status + ')');
+  }
+  return data;
+}
+
+// ---- auth tabs
+let mode = 'login';
+function setMode(m){
+  mode = m;
+  $('tabLogin').classList.toggle('active', m === 'login');
+  $('tabRegister').classList.toggle('active', m === 'register');
+  $('nameWrap').classList.toggle('hidden', m === 'login');
+  $('roleWrap').classList.toggle('hidden', m === 'login');
+  $('authBtn').textContent = m === 'login' ? 'Log in' : 'Create account';
+  $('password').autocomplete = m === 'login' ? 'current-password' : 'new-password';
+  clear($('authMsg'));
+}
+$('tabLogin').onclick = () => setMode('login');
+$('tabRegister').onclick = () => setMode('register');
+
+async function doLogin(emailVal, pass){
+  const data = await api('/auth/login', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: emailVal, password: pass})
+  });
+  if (!data.access_token) throw new Error(data.message || 'Login failed');
+  token = data.access_token;
+  try { localStorage.setItem('token', token); } catch(e){}
+  enter();
+}
+
+$('authForm').onsubmit = async e => {
+  e.preventDefault();
+  const btn = $('authBtn'); btn.disabled = true; clear($('authMsg'));
+  try {
+    const emailVal = $('email').value.trim(), pass = $('password').value;
+    if (mode === 'register') {
+      await api('/auth/register', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username: $('username').value.trim() || emailVal, email: emailVal,
+                              password: pass, role: $('role').value})
+      });
+    }
+    await doLogin(emailVal, pass);
+  } catch(err){
+    show($('authMsg'), err.message.includes('500') ? 'Could not complete that. The email may already be registered.' : err.message, 'err');
+  } finally { btn.disabled = false; }
+};
+
+function logout(){
+  token = null;
+  try { localStorage.removeItem('token'); } catch(e){}
+  $('authCard').classList.remove('hidden');
+  $('appArea').classList.add('hidden');
+  $('who').classList.add('hidden');
+  $('password').value = '';
+}
+$('logout').onclick = logout;
+
+function enter(){
+  const p = token && parseToken(token);
+  if (!p) { logout(); return; }
+  role = p.role; email = p.email;
+  $('authCard').classList.add('hidden');
+  $('appArea').classList.remove('hidden');
+  $('who').classList.remove('hidden');
+  $('whoText').textContent = email + ' · ' + role.replace('_', ' ');
+  $('uploadCard').classList.toggle('hidden', role !== 'admin');
+  $('askCard').classList.toggle('hidden', !['admin','financial_analyst','auditor'].includes(role));
+  loadDocs();
+}
+
+// ---- documents
+async function loadDocs(){
+  clear($('docsMsg'));
+  try {
+    const {documents} = await api('/documents');
+    const body = $('docs'); body.innerHTML = '';
+    $('noDocs').classList.toggle('hidden', documents.length > 0);
+    for (const d of documents) {            // id, title, company, type, uploaded_by, created_at, file
+      const tr = document.createElement('tr');
+      [d[1], d[2], d[3], (d[5] || '').slice(0, 10)].forEach(v => {
+        const td = document.createElement('td'); td.textContent = v; tr.appendChild(td);
+      });
+      const td = document.createElement('td');
+      if (role === 'admin') {
+        const b = document.createElement('button'); b.className = 'danger'; b.textContent = 'Delete';
+        b.onclick = async () => {
+          if (!confirm('Delete "' + d[1] + '"?')) return;
+          try { await api('/documents/' + d[0], {method: 'DELETE'}); loadDocs(); }
+          catch(err){ show($('docsMsg'), err.message, 'err'); }
+        };
+        td.appendChild(b);
+      }
+      tr.appendChild(td); body.appendChild(tr);
+    }
+  } catch(err){ show($('docsMsg'), err.message, 'err'); }
+}
+
+$('uploadForm').onsubmit = async e => {
+  e.preventDefault();
+  const btn = $('uploadBtn'); btn.disabled = true; btn.textContent = 'Uploading…'; clear($('uploadMsg'));
+  try {
+    const q = new URLSearchParams({title: $('title').value, company_name: $('company').value,
+                                   document_type: $('dtype').value});
+    const fd = new FormData(); fd.append('file', $('file').files[0]);
+    const r = await api('/documents/upload?' + q, {method: 'POST', body: fd});
+    show($('uploadMsg'), 'Uploaded "' + r.filename + '" (' + r.chunks_created + ' sections indexed).', 'ok');
+    $('uploadForm').reset(); loadDocs();
+  } catch(err){ show($('uploadMsg'), err.message, 'err'); }
+  finally { btn.disabled = false; btn.textContent = 'Upload'; }
+};
+
+$('askForm').onsubmit = async e => {
+  e.preventDefault();
+  const btn = $('askBtn'); btn.disabled = true; btn.textContent = 'Thinking…';
+  clear($('askMsg')); $('answer').style.display = 'none';
+  try {
+    const r = await api('/documents/search', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query: $('question').value})
+    });
+    $('answer').textContent = r.answer; $('answer').style.display = 'block';
+  } catch(err){ show($('askMsg'), err.message, 'err'); }
+  finally { btn.disabled = false; btn.textContent = 'Ask'; }
+};
+
+setMode('login');
+if (token) enter();
+</script>
+</body>
+</html>

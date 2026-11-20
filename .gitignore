@@ -3,3 +3,4 @@ database.db
 uploads/
 __pycache__/
 *.pyc
+chroma_db/
