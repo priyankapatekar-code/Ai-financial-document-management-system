@@ -32,7 +32,7 @@ The system supports authentication, role-based access control, document storage,
 * Python
 * SQLite
 * ChromaDB
-* Google Gemini API
+* Google Gemini API (google-genai SDK)
 * JWT Authentication
 * pypdf
 
@@ -73,43 +73,69 @@ User Login
 
 ---
 
-## Installation
+## Installation (Windows PowerShell)
 
-### Clone Repository
+```powershell
+# 1. Go to the project folder
+cd "C:\Users\YourName\Downloads\Ai-financial-document-management-system-main"
 
-git clone 
-
-cd financial-document-management-system
-
-### Create Virtual Environment
-
+# 2. Create and activate a virtual environment
 python -m venv venv
+venv\Scripts\Activate.ps1
+# If PowerShell blocks the script, run once:
+#   Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 
-### Activate Environment
-
-Windows:
-
-venv\Scripts\activate
-
-### Install Dependencies
-
+# 3. Install dependencies
 pip install -r requirements.txt
+```
 
-### Configure Environment Variables
+### Configure environment variables
 
-Create a .env file and add:
+```powershell
+Copy-Item .env.example .env
+notepad .env
+```
 
-GEMINI_API_KEY=your_api_key
+| Variable | What to put |
+|---|---|
+| `LLM_PROVIDER` | `gemini` (default) or `openrouter` |
+| `GEMINI_API_KEY` | Free key from https://aistudio.google.com/apikey (when provider is `gemini`) |
+| `OPENROUTER_API_KEY` | Key from https://openrouter.ai/keys (when provider is `openrouter`) |
+| `OPENROUTER_MODEL` | Model ID, e.g. `meta-llama/llama-3.3-70b-instruct:free` (free models end in `:free`) |
+| `SECRET_KEY` | A long random string. Generate: `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `ALGORITHM` | `HS256` |
 
-JWT_SECRET_KEY=your_secret_key
+Optional: `GEMINI_MODEL` (default `gemini-2.5-flash`), `TOKEN_EXPIRE_HOURS` (default 8), `MAX_UPLOAD_MB` (default 25).
 
-### Run Application
+The app refuses to start with a clear message if `SECRET_KEY` or `ALGORITHM` is missing. If `GEMINI_API_KEY` is missing the app starts, but AI answers return a "not configured" error. `.env` is git-ignored - never commit it.
 
+### Run (always from the project folder)
+
+```powershell
 python -m uvicorn main:app --reload
+```
 
-### Swagger Documentation
+* Web interface: http://127.0.0.1:8000/ui
+* API docs (Swagger): http://127.0.0.1:8000/docs
 
-http://127.0.0.1:8000/docs
+The first upload/search downloads a ~80 MB embedding model (one time, needs internet).
+
+### Data stored locally (all git-ignored)
+
+* `database.db` - users and document records (SQLite)
+* `chroma_db/` - persistent embeddings (survive restarts)
+* `uploads/` - uploaded PDFs
+
+### First use
+
+1. **Create account** in the web interface. The **first** account may choose the role **Admin**; later sign-ups cannot self-register as admin.
+2. Admin uploads text-based PDFs. Exact duplicate files (same content) are rejected.
+3. Admin / Financial analyst / Auditor can ask questions; Clients can only list documents.
+
+### Optional: OCR for scanned PDFs
+
+Scanned/image-only PDFs are rejected with a clear message unless OCR is installed:
+install the Tesseract program, then `pip install pytesseract pillow`.
 
 ---
 

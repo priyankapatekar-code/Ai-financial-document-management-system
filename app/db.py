@@ -23,3 +23,12 @@ CREATE TABLE IF NOT EXISTS documents (
 )
 """)
 conn.commit()
+# Migration (non-destructive): content hash used to detect duplicate uploads.
+_cols = [row[1] for row in cursor.execute("PRAGMA table_info(documents)").fetchall()]
+if "content_hash" not in _cols:
+    cursor.execute("ALTER TABLE documents ADD COLUMN content_hash TEXT")
+cursor.execute(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_documents_content_hash ON documents(content_hash)"
+)
+conn.commit()
+conn.close()
