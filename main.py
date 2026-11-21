@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 import sqlite3
 import os
@@ -71,9 +72,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             detail="Invalid token"
         )
     
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def home():
-    return {"message": "Hello Priyanka"}
+    return RedirectResponse(url="/ui/")
 
 VALID_ROLES = {"admin", "financial_analyst", "auditor", "client"}
 
