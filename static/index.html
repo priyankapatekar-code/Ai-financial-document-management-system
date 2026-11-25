@@ -5,63 +5,283 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Financial Documents</title>
 <style>
-  :root{
-    --bg:#f5f7fb; --card:#fff; --text:#1d2433; --muted:#6b7488; --line:#e3e7ef;
-    --brand:#2557d6; --brand-d:#1b44ab; --ok:#16794c; --err:#b3261e;
+  :root {
+    color-scheme: light dark;
+    --page: #f5f5f7;
+    --card: #fff;
+    --control: #f4f4f7;
+    --ink: #1d1d1f;
+    --muted: #5c606a;
+    --line: #e1e2e8;
+    --blue: #0066cc;
+    --button: #006edb;
+    --button-hover: #005cbb;
+    --wash: #e8f2ff;
+    --glow: #d9e9ff;
+    --success: #176139;
+    --error: #a52b24;
+    --shadow: 0 18px 50px -30px rgb(37 48 79 / .35);
   }
-  @media (prefers-color-scheme: dark){
-    :root{ --bg:#0f1420; --card:#171d2c; --text:#e8ecf5; --muted:#98a2b8; --line:#2a3247;
-           --brand:#5b8cff; --brand-d:#7aa2ff; --ok:#4cc38a; --err:#ff8a80; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #141417;
+      --card: #222226;
+      --control: #2c2c31;
+      --ink: #f5f5f7;
+      --muted: #b5b5c1;
+      --line: #3c3c44;
+      --blue: #80bcff;
+      --button-hover: #1175dd;
+      --wash: #202f46;
+      --glow: #202c43;
+      --success: #79d7a8;
+      --error: #ffa29a;
+      --shadow: 0 18px 50px -30px rgb(0 0 0 / .65);
+    }
   }
-  *{box-sizing:border-box}
-  body{margin:0;font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
-  header{background:var(--card);border-bottom:1px solid var(--line);padding:14px 16px;
-         display:flex;align-items:center;justify-content:space-between;gap:12px}
-  header h1{font-size:18px;margin:0}
-  main{max-width:860px;margin:0 auto;padding:16px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
-  .card h2{margin:0 0 12px;font-size:17px}
-  label{display:block;font-size:14px;color:var(--muted);margin:10px 0 4px}
-  input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
-               background:var(--bg);color:var(--text);font:inherit}
-  input:focus,select:focus,button:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
-  button{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:inherit;
-         font-weight:600;cursor:pointer}
-  button:hover{background:var(--brand-d)}
-  button:disabled{opacity:.6;cursor:wait}
-  button.ghost{background:transparent;color:var(--brand);border:1px solid var(--line)}
-  button.danger{background:transparent;color:var(--err);border:1px solid var(--line);padding:6px 10px;font-size:14px}
-  .row{display:flex;gap:10px;flex-wrap:wrap}
-  .row>*{flex:1 1 200px}
-  .tabs{display:flex;gap:8px;margin-bottom:12px}
-  .tabs button{flex:1}
-  .tabs button:not(.active){background:transparent;color:var(--text);border:1px solid var(--line)}
-  .msg{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:14px;display:none}
-  .msg.ok{display:block;background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
-  .msg.err{display:block;background:color-mix(in srgb,var(--err) 15%,transparent);color:var(--err)}
-  .answer{white-space:pre-wrap;margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;
-          border:1px solid var(--line);display:none}
-  table{width:100%;border-collapse:collapse;font-size:14px}
-  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
-  th{color:var(--muted);font-weight:600}
-  .table-wrap{overflow-x:auto}
-  .hidden{display:none}
-  .muted{color:var(--muted);font-size:14px}
-  .who{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:10px}
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font: 1rem/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    background: radial-gradient(ellipse 52rem 32rem at 50% 0, var(--glow), transparent), var(--page);
+  }
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-bottom: 1px solid var(--line);
+    background: var(--card);
+    background: color-mix(in srgb, var(--card) 82%, transparent);
+    backdrop-filter: blur(20px);
+  }
+  .topbar-inner {
+    max-width: 74rem;
+    min-height: 4rem;
+    margin: auto;
+    padding: .65rem clamp(1rem, 4vw, 2.5rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem 1.5rem;
+    flex-wrap: wrap;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 650;
+    letter-spacing: -.02em;
+  }
+  .document-mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: .65rem;
+    background: linear-gradient(155deg, #368dff, #005cbd);
+    color: white;
+  }
+  .document-mark::before {
+    content: "";
+    width: .7rem;
+    height: .9rem;
+    border: 1.5px solid currentColor;
+    border-radius: .18rem;
+    background: linear-gradient(currentColor, currentColor) center 43% / 55% 1px no-repeat,
+                linear-gradient(currentColor, currentColor) center 67% / 55% 1px no-repeat;
+  }
+  .who {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: var(--muted);
+    font-size: .875rem;
+  }
+  #whoText { overflow-wrap: anywhere; }
+  .who button { flex: none; }
+  main {
+    max-width: 74rem;
+    margin: auto;
+    padding: clamp(1.25rem, 4vw, 3rem) clamp(1rem, 4vw, 2.5rem) 4rem;
+  }
+  .card {
+    min-width: 0;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border: 1px solid var(--line);
+    border-radius: 1.5rem;
+    background: var(--card);
+    box-shadow: var(--shadow);
+  }
+  .card h2 {
+    margin: 0 0 .85rem;
+    font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+    line-height: 1.15;
+    letter-spacing: -.035em;
+  }
+  #authCard {
+    max-width: 29rem;
+    margin: clamp(0rem, 6vw, 4.5rem) auto 0;
+    padding: clamp(1.25rem, 6vw, 2.75rem);
+  }
+  #authCard h2 {
+    margin-bottom: 1.5rem;
+    font-size: clamp(1.85rem, 5vw, 2.6rem);
+    text-align: center;
+  }
+  #appArea { display: grid; gap: 1.25rem; align-items: start; }
+  #askCard {
+    background: linear-gradient(120deg, var(--wash), var(--card) 70%);
+  }
+  #askCard p { margin: -.35rem 0 1rem; }
+  @media (min-width: 58rem) {
+    #appArea:has(#uploadCard:not(.hidden)) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.9fr); }
+    #askCard { grid-column: 1 / -1; }
+  }
+  label {
+    display: block;
+    margin: .9rem 0 .35rem;
+    color: var(--muted);
+    font-size: .875rem;
+    font-weight: 600;
+  }
+  input, select {
+    width: 100%;
+    min-width: 0;
+    padding: .65rem .8rem;
+    border: 1px solid var(--line);
+    border-radius: .75rem;
+    background-color: var(--control);
+    color: var(--ink);
+    font: inherit;
+  }
+  input::placeholder { color: var(--muted); }
+  input:focus, select:focus, button:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+  input[type="file"] { font-size: .875rem; }
+  input::file-selector-button {
+    margin-inline-end: .55rem;
+    padding: .3rem .65rem;
+    border: 1px solid var(--line);
+    border-radius: .5rem;
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+  }
+  button {
+    min-height: 2.75rem;
+    padding: .55rem 1.15rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: var(--button);
+    color: white;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { background: var(--button-hover); }
+  button:disabled { opacity: .6; cursor: wait; }
+  button.ghost, button.danger {
+    min-height: 2.25rem;
+    padding: .35rem .75rem;
+    background: transparent;
+    font-size: .875rem;
+  }
+  button.ghost { color: var(--blue); border-color: var(--line); }
+  button.ghost:hover { background: var(--wash); }
+  button.danger { color: var(--error); }
+  button.danger:hover { background: color-mix(in srgb, var(--error) 10%, transparent); }
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .2rem;
+    padding: .25rem;
+    border-radius: .875rem;
+    background: var(--control);
+  }
+  .tabs button {
+    min-height: 2.5rem;
+    padding: .4rem .25rem;
+    border-radius: .65rem;
+    background: transparent;
+    color: var(--muted);
+    font-size: .875rem;
+  }
+  .tabs button:hover { color: var(--ink); }
+  .tabs button.active {
+    border-color: var(--line);
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / .1);
+  }
+  .form-actions { margin-top: 1.25rem; }
+  #authBtn { width: 100%; }
+  #askForm { display: flex; flex-wrap: wrap; gap: .65rem; }
+  #question { flex: 1 1 14rem; background: var(--card); }
+  #askBtn { min-width: 5.5rem; }
+  .msg {
+    display: none;
+    margin-top: .85rem;
+    padding: .65rem .8rem;
+    border-radius: .75rem;
+    overflow-wrap: anywhere;
+    font-size: .875rem;
+  }
+  .msg.ok { display: block; color: var(--success); background: color-mix(in srgb, var(--success) 10%, transparent); }
+  .msg.err { display: block; color: var(--error); background: color-mix(in srgb, var(--error) 10%, transparent); }
+  .answer {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: .875rem;
+    background: var(--card);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+  th, td { padding: .75rem .65rem; border-bottom: 1px solid var(--line); text-align: left; }
+  th { background: var(--control); color: var(--muted); font-weight: 600; }
+  th:first-child { border-start-start-radius: .65rem; }
+  th:last-child { border-start-end-radius: .65rem; }
+  td:first-child { min-width: 8rem; overflow-wrap: anywhere; font-weight: 600; }
+  td:nth-child(4) { white-space: nowrap; }
+  td:last-child { text-align: right; }
+  tbody tr:last-child td { border-bottom: 0; }
+  #noDocs {
+    margin: 0;
+    padding: 2rem 1rem;
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+  }
+  .muted { color: var(--muted); }
+  .hidden, #appArea.hidden { display: none; }
 </style>
 </head>
 <body>
-<header>
-  <h1>📄 Financial Documents</h1>
-  <div class="who hidden" id="who"><span id="whoText"></span><button class="ghost" id="logout">Log out</button></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <h1 class="brand"><span class="document-mark" aria-hidden="true"></span>Financial Documents</h1>
+    <div class="who hidden" id="who"><span id="whoText"></span><button class="ghost" id="logout">Log out</button></div>
+  </div>
 </header>
 
 <main>
   <!-- Login / Register -->
-  <section class="card" id="authCard">
-    <div class="tabs">
-      <button id="tabLogin" class="active">Log in</button>
-      <button id="tabRegister">Create account</button>
+  <section class="card" id="authCard" aria-labelledby="authHeading">
+    <h2 id="authHeading">Welcome</h2>
+    <div class="tabs" role="group" aria-label="Account access">
+      <button id="tabLogin" class="active" type="button" aria-pressed="true">Log in</button>
+      <button id="tabRegister" type="button" aria-pressed="false">Create account</button>
     </div>
     <form id="authForm">
       <div id="nameWrap" class="hidden">
@@ -81,8 +301,8 @@
           <option value="admin">Admin</option>
         </select>
       </div>
-      <div style="margin-top:16px"><button type="submit" id="authBtn">Log in</button></div>
-      <div class="msg" id="authMsg"></div>
+      <div class="form-actions"><button type="submit" id="authBtn">Log in</button></div>
+      <div class="msg" id="authMsg" role="status"></div>
     </form>
   </section>
 
@@ -91,44 +311,43 @@
     <section class="card" id="askCard">
       <h2>Ask a question</h2>
       <p class="muted">Ask about your uploaded documents and get an AI answer.</p>
-      <form id="askForm" class="row">
-        <input id="question" placeholder="e.g. What was the total revenue?" required style="flex:3 1 260px">
-        <button type="submit" id="askBtn" style="flex:0 0 auto">Ask</button>
+      <form id="askForm">
+        <input id="question" aria-label="Question" placeholder="e.g. What was the total revenue?" required>
+        <button type="submit" id="askBtn">Ask</button>
       </form>
-      <div class="answer" id="answer"></div>
-      <div class="msg" id="askMsg"></div>
+      <div class="answer" id="answer" role="status"></div>
+      <div class="msg" id="askMsg" role="status"></div>
     </section>
 
     <section class="card hidden" id="uploadCard">
       <h2>Upload a PDF</h2>
       <form id="uploadForm">
-        <div class="row">
-          <div><label for="title">Title</label><input id="title" required></div>
-          <div><label for="company">Company</label><input id="company" required></div>
-          <div><label for="dtype">Type</label>
-            <select id="dtype">
-              <option>Annual report</option><option>Balance sheet</option><option>Invoice</option>
-              <option>Audit report</option><option>Other</option>
-            </select>
-          </div>
-        </div>
+        <label for="title">Title</label>
+        <input id="title" required>
+        <label for="company">Company</label>
+        <input id="company" required>
+        <label for="dtype">Type</label>
+        <select id="dtype">
+          <option>Annual report</option><option>Balance sheet</option><option>Invoice</option>
+          <option>Audit report</option><option>Other</option>
+        </select>
         <label for="file">PDF file</label>
         <input id="file" type="file" accept="application/pdf,.pdf" required>
-        <div style="margin-top:16px"><button type="submit" id="uploadBtn">Upload</button></div>
-        <div class="msg" id="uploadMsg"></div>
+        <div class="form-actions"><button type="submit" id="uploadBtn">Upload</button></div>
+        <div class="msg" id="uploadMsg" role="status"></div>
       </form>
     </section>
 
     <section class="card">
-      <h2>Documents</h2>
-      <div class="table-wrap">
+      <h2 id="docsHeading">Documents</h2>
+      <div class="table-wrap" tabindex="0" role="region" aria-labelledby="docsHeading">
         <table>
           <thead><tr><th>Title</th><th>Company</th><th>Type</th><th>Date</th><th></th></tr></thead>
           <tbody id="docs"></tbody>
         </table>
       </div>
       <p class="muted" id="noDocs">No documents yet.</p>
-      <div class="msg" id="docsMsg"></div>
+      <div class="msg" id="docsMsg" role="status"></div>
     </section>
   </div>
 </main>
@@ -166,6 +385,9 @@ function setMode(m){
   mode = m;
   $('tabLogin').classList.toggle('active', m === 'login');
   $('tabRegister').classList.toggle('active', m === 'register');
+  $('tabLogin').setAttribute('aria-pressed', m === 'login');
+  $('tabRegister').setAttribute('aria-pressed', m === 'register');
+  $('authHeading').textContent = m === 'login' ? 'Welcome' : 'Create an account';
   $('nameWrap').classList.toggle('hidden', m === 'login');
   $('roleWrap').classList.toggle('hidden', m === 'login');
   $('authBtn').textContent = m === 'login' ? 'Log in' : 'Create account';
